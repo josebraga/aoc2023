@@ -49,7 +49,7 @@ func spelledNumber(str string) (int, int, int, int) {
 	return first, firstIndex, last, lastIndex
 }
 
-func getNumber(str string) int {
+func getNumber(str string) (int, int) {
 	first := 0
 	firstIndex := -1
 	last := 0
@@ -71,17 +71,19 @@ func getNumber(str string) int {
 		}
 	}
 
-	f2, fi2, l2, li2 := spelledNumber(str)
+	answerPart1 := first*10 + last
 
-	if (fi2 < firstIndex && fi2 != -1) || firstIndex == -1 {
-		first = f2
+	firstPart2, firstIndexPart2, lastPart2, lastIndexPart2 := spelledNumber(str)
+
+	if (firstIndexPart2 < firstIndex && firstIndexPart2 != -1) || firstIndex == -1 {
+		first = firstPart2
 	}
 
-	if (li2 > lastIndex && li2 != -1) || lastIndex == -1 {
-		last = l2
+	if (lastIndexPart2 > lastIndex && lastIndexPart2 != -1) || lastIndex == -1 {
+		last = lastPart2
 	}
 
-	return first*10 + last
+	return answerPart1, first*10 + last
 }
 
 func main() {
@@ -94,12 +96,14 @@ func main() {
 
 	fileScanner.Split(bufio.ScanLines)
 
-	total := 0
+	totalPart1 := 0
+	totalPart2 := 0
 	for fileScanner.Scan() {
-		total += getNumber(fileScanner.Text())
+		t1, t2 := getNumber(fileScanner.Text())
+		totalPart1 += t1
+		totalPart2 += t2
 	}
-
-	fmt.Println("Total is", total)
+	fmt.Printf("Part 1: %d\nPart 2: %d\n", totalPart1, totalPart2)
 
 	readFile.Close()
 }
