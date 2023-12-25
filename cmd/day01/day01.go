@@ -8,6 +8,10 @@ import (
 )
 
 var numbers = map[string]int{
+	"1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9,
+}
+
+var spelledNumbers = map[string]int{
 	"one":   1,
 	"two":   2,
 	"three": 3,
@@ -19,29 +23,25 @@ var numbers = map[string]int{
 	"nine":  9,
 }
 
-func isNumber(char byte) bool {
-	return char >= '0' && char <= '9'
-}
-
-func spelledNumber(str string) (int, int, int, int) {
+func findOccurrences(line string, num map[string]int) (int, int, int, int) {
 	first := 0
 	firstIndex := -1
 	last := 0
 	lastIndex := -1
 
-	for s, i := range numbers {
-		if index := strings.Index(str, s); index != -1 {
+	for substr, number := range num {
+		if index := strings.Index(line, substr); index != -1 {
 			if index < firstIndex || firstIndex == -1 {
-				first = i
+				first = number
 				firstIndex = index
 			}
 		}
 	}
 
-	for s, i := range numbers {
-		if index := strings.LastIndex(str, s); index != -1 {
+	for substr, number := range num {
+		if index := strings.LastIndex(line, substr); index != -1 {
 			if index > lastIndex || lastIndex == -1 {
-				last = i
+				last = number
 				lastIndex = index
 			}
 		}
@@ -49,37 +49,17 @@ func spelledNumber(str string) (int, int, int, int) {
 	return first, firstIndex, last, lastIndex
 }
 
-func getNumber(str string) (int, int) {
-	first := 0
-	firstIndex := -1
-	last := 0
-	lastIndex := -1
-
-	for i := 0; i < len(str); i++ {
-		if isNumber(str[i]) {
-			first = int(str[i] - '0')
-			firstIndex = i
-			break
-		}
-	}
-
-	for i := len(str) - 1; i >= 0; i-- {
-		if isNumber(str[i]) {
-			last = int(str[i] - '0')
-			lastIndex = i
-			break
-		}
-	}
-
+func solve(line string) (int, int) {
+	first, firstIndexPart1, last, lastIndexPart1 := findOccurrences(line, numbers)
 	answerPart1 := first*10 + last
 
-	firstPart2, firstIndexPart2, lastPart2, lastIndexPart2 := spelledNumber(str)
+	firstPart2, firstIndexPart2, lastPart2, lastIndexPart2 := findOccurrences(line, spelledNumbers)
 
-	if (firstIndexPart2 < firstIndex && firstIndexPart2 != -1) || firstIndex == -1 {
+	if (firstIndexPart2 < firstIndexPart1 && firstIndexPart2 != -1) || firstIndexPart1 == -1 {
 		first = firstPart2
 	}
 
-	if (lastIndexPart2 > lastIndex && lastIndexPart2 != -1) || lastIndex == -1 {
+	if lastIndexPart2 > lastIndexPart1 && lastIndexPart2 != -1 {
 		last = lastPart2
 	}
 
@@ -88,22 +68,20 @@ func getNumber(str string) (int, int) {
 
 func main() {
 	readFile, err := os.Open("assets/day01.txt")
-
 	if err != nil {
 		fmt.Println(err)
 	}
-	fileScanner := bufio.NewScanner(readFile)
+	defer readFile.Close()
 
+	fileScanner := bufio.NewScanner(readFile)
 	fileScanner.Split(bufio.ScanLines)
 
-	totalPart1 := 0
-	totalPart2 := 0
+	part1 := 0
+	part2 := 0
 	for fileScanner.Scan() {
-		t1, t2 := getNumber(fileScanner.Text())
-		totalPart1 += t1
-		totalPart2 += t2
+		t1, t2 := solve(fileScanner.Text())
+		part1 += t1
+		part2 += t2
 	}
-	fmt.Printf("Part 1: %d\nPart 2: %d\n", totalPart1, totalPart2)
-
-	readFile.Close()
+	fmt.Printf("Part 1: %d\nPart 2: %d\n", part1, part2)
 }
